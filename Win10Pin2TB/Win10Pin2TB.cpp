@@ -28,7 +28,7 @@ BOOL WriteMsg2Console(LPCWSTR msg, ...)
 #define BUFFER_SIZE  0x478
 #define COMMAND_BUFFER_SIZE 0x64
 
-static const void WINAPI replace_wchar(const wchar_t *srcStr, wchar_t replaceChar)
+static const void WINAPI remove_wchar(const wchar_t *srcStr, wchar_t removeChar)
 {
 	if (srcStr == NULL)
 		return ;
@@ -40,7 +40,7 @@ static const void WINAPI replace_wchar(const wchar_t *srcStr, wchar_t replaceCha
 		wchar_t* pSrcChar = (wchar_t *)&srcStr[lastIndex];
 		do
 		{
-			if (*pSrcChar == replaceChar)
+			if (*pSrcChar == removeChar)
 			{
 				if (lastIndex == strLen)
 				{
@@ -115,7 +115,7 @@ static DWORD WINAPI thread_func(void* pContextData)
 				if (pVerbs != NULL)
 				{
 					hResult = pVerbs->get_Count(&verbsCount);
-					replace_wchar(commandString, L'&');
+					remove_wchar(commandString, L'&');
 					FolderItemVerb* pTargetVerb = NULL;
 					wchar_t tempName[MAX_PATH] = { 0 };
 					for (int i = 0; i < verbsCount; i++)
@@ -133,7 +133,7 @@ static DWORD WINAPI thread_func(void* pContextData)
 								continue;
 							memset(tempName, 0, MAX_PATH * 2);//in Syspin,directly change pVerName could led memory corrupt Edited by xyq@2019-11-1 15:17:22
 							wcscpy_s(tempName, pVerbName);
-							replace_wchar((wchar_t*)tempName, L'&');
+							remove_wchar((wchar_t*)tempName, L'&');
 							_wcslwr_s((wchar_t*)tempName, MAX_PATH);
 							if (SUCCEEDED(hResult) && !wcscmp((wchar_t*)tempName, commandString))
 							{
