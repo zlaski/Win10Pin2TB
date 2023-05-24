@@ -293,7 +293,8 @@ int main()
 	GetWindowThreadProcessId(hProgman, &dwProcessId);
 	if (dwProcessId)
 	{
-		HANDLE hExplorer = OpenProcess(PROCESS_CREATE_THREAD | PROCESS_VM_OPERATION | PROCESS_VM_WRITE, 0, dwProcessId);
+		HANDLE hExplorer = OpenProcess(PROCESS_CREATE_THREAD | PROCESS_QUERY_INFORMATION | PROCESS_VM_OPERATION
+			| PROCESS_VM_READ | PROCESS_VM_WRITE, FALSE, dwProcessId);
 		if (hExplorer != INVALID_HANDLE_VALUE)
 		{
 			InjectFun2Explorer(buffer, hExplorer, thread_func);
