@@ -162,7 +162,7 @@ static DWORD WINAPI thread_func(void* pContextData)
 	return SUCCEEDED(hResult);
 }
 
-BOOL __fastcall InjectFun2Explorer(LPCVOID lpThreadArgs, HANDLE hProcess, thread_callback callBack)
+BOOL __fastcall InjectIntoExplorer(LPCVOID lpThreadArgs, HANDLE hProcess, thread_callback callBack)
 {
 	HMODULE hModule = GetModuleHandleW(NULL);
 	PIMAGE_NT_HEADERS pNTH = (PIMAGE_NT_HEADERS)((ULONG_PTR)hModule + ((IMAGE_DOS_HEADER*)hModule)->e_lfanew);
@@ -296,7 +296,7 @@ int main()
 		HANDLE hExplorer = OpenProcess(PROCESS_CREATE_THREAD | PROCESS_VM_OPERATION | PROCESS_VM_WRITE, 0, dwProcessId);
 		if (hExplorer != INVALID_HANDLE_VALUE)
 		{
-			InjectFun2Explorer(buffer, hExplorer, thread_func);
+			InjectIntoExplorer(buffer, hExplorer, thread_func);
 		}
 		else
 		{
