@@ -1,4 +1,4 @@
-﻿// win10Pin2TB.cpp : This file contains the 'main' function. Program execution begins and ends there.
+// win10Pin2TB.cpp : This file contains the 'main' function. Program execution begins and ends there.
 //
 
 #include "pch.h"
@@ -13,7 +13,7 @@
 
 #pragma comment(lib,"Shlwapi.lib")
 
-BOOL WriteMsg2Console(LPCWSTR msg, ...)
+static BOOL WriteMsg2Console(LPCWSTR msg, ...)
 {
 	va_list va; // [rsp+258h] [rbp+10h]
 	va_start(va, msg);
@@ -162,7 +162,7 @@ static DWORD WINAPI thread_func(void* pContextData)
 	return SUCCEEDED(hResult);
 }
 
-BOOL __fastcall InjectFun2Explorer(LPCVOID lpThreadArgs, HANDLE hProcess, thread_callback callBack)
+static BOOL __fastcall InjectIntoExplorer(LPCVOID lpThreadArgs, HANDLE hProcess, thread_callback callBack)
 {
 	HMODULE hModule = GetModuleHandleW(NULL);
 	PIMAGE_NT_HEADERS pNTH = (PIMAGE_NT_HEADERS)((ULONG_PTR)hModule + ((IMAGE_DOS_HEADER*)hModule)->e_lfanew);
