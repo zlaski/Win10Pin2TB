@@ -261,7 +261,7 @@ int main()
 	{
 		OutputDebugString(L"Can't get file attributes");
 		SetConsoleTextAttribute(stdHandle, 0xAu); //BACKGROUND_BLUE
-		ExitProcess(0); 
+		return 1i64;
 	}
 
 	char buffer[BUFFER_SIZE] = { 0 };
@@ -287,6 +287,7 @@ int main()
 		_wcslwr_s(command);
 	}
 
+	BOOL success = FALSE;
 	HWND hProgman = FindWindowW(L"Progman", NULL);
 	if(hProgman==NULL)
 		OutputDebugString(L"Can't find progman");
@@ -299,11 +300,14 @@ int main()
 			| PROCESS_VM_READ | PROCESS_VM_WRITE, FALSE, dwProcessId);
 		if (hExplorer != INVALID_HANDLE_VALUE)
 		{
-			InjectFun2Explorer(buffer, hExplorer, thread_func);
+			success = InjectIntoExplorer(buffer, hExplorer, thread_func);
+			CloseHandle(hExplorer);
 		}
 		else
 		{
 			OutputDebugString(L"OpenProcess error");
 		}
 	}
+
+	return success ? 0 : 1;
 }
