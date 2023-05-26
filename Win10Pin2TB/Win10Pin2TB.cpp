@@ -28,7 +28,7 @@ static BOOL WriteMsg2Console(LPCWSTR msg, ...)
 #define BUFFER_SIZE  0x478
 #define COMMAND_BUFFER_SIZE 0x64
 
-static const void WINAPI remove_wchar(const wchar_t *srcStr, wchar_t removeChar)
+static const void __fastcall remove_wchar(const wchar_t *srcStr, wchar_t removeChar)
 {
 	if (srcStr == NULL)
 		return ;
@@ -69,8 +69,8 @@ static const void WINAPI remove_wchar(const wchar_t *srcStr, wchar_t removeChar)
 	}
 }
 
-typedef DWORD(WINAPI *thread_callback)(void* pContextData);
-static DWORD WINAPI thread_func(void* pContextData)
+typedef DWORD(__fastcall *thread_callback)(void* pContextData);
+static DWORD __fastcall thread_func(void* pContextData)
 {
 	CoInitialize(0i64);
 	DWORD opCode = *(DWORD *)((char*)pContextData + BUFFER_SIZE-4);
