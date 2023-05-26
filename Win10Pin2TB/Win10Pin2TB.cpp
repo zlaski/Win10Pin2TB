@@ -1,4 +1,4 @@
-﻿// win10Pin2TB.cpp : This file contains the 'main' function. Program execution begins and ends there.
+// win10Pin2TB.cpp : This file contains the 'main' function. Program execution begins and ends there.
 //
 
 #include "pch.h"
@@ -13,7 +13,7 @@
 
 #pragma comment(lib,"Shlwapi.lib")
 
-BOOL WriteMsg2Console(LPCWSTR msg, ...)
+static BOOL WriteMsg2Console(LPCWSTR msg, ...)
 {
 	va_list va; // [rsp+258h] [rbp+10h]
 	va_start(va, msg);
@@ -28,7 +28,7 @@ BOOL WriteMsg2Console(LPCWSTR msg, ...)
 #define BUFFER_SIZE  0x478
 #define COMMAND_BUFFER_SIZE 0x64
 
-static const void WINAPI replace_wchar(const wchar_t *srcStr, wchar_t replaceChar)
+static const void WINAPI remove_wchar(const wchar_t *srcStr, wchar_t removeChar)
 {
 	if (srcStr == NULL)
 		return ;
@@ -43,7 +43,7 @@ static const void WINAPI replace_wchar(const wchar_t *srcStr, wchar_t replaceCha
 		wchar_t* pSrcChar = (wchar_t *)&srcStr[lastIndex];
 		do
 		{
-			if (*pSrcChar == replaceChar)
+			if (*pSrcChar == removeChar)
 			{
 				if (lastIndex == strLen)
 				{
@@ -118,7 +118,7 @@ static DWORD WINAPI thread_func(void* pContextData)
 				if (pVerbs != NULL)
 				{
 					hResult = pVerbs->get_Count(&verbsCount);
-					replace_wchar(commandString, L'&');
+					remove_wchar(commandString, L'&');
 					FolderItemVerb* pTargetVerb = NULL;
 					wchar_t tempName[MAX_PATH] = { 0 };
 					for (int i = 0; i < verbsCount; i++)
@@ -164,7 +164,7 @@ static DWORD WINAPI thread_func(void* pContextData)
 	return SUCCEEDED(hResult);
 }
 
-BOOL __fastcall InjectFun2Explorer(LPCVOID lpThreadArgs, HANDLE hProcess, thread_callback callBack)
+static BOOL __fastcall InjectIntoExplorer(LPCVOID lpThreadArgs, HANDLE hProcess, thread_callback callBack)
 {
 	HMODULE hModule = GetModuleHandleW(NULL);
 	PIMAGE_NT_HEADERS pNTH = (PIMAGE_NT_HEADERS)((ULONG_PTR)hModule + ((IMAGE_DOS_HEADER*)hModule)->e_lfanew);
@@ -217,11 +217,11 @@ BOOL __fastcall InjectFun2Explorer(LPCVOID lpThreadArgs, HANDLE hProcess, thread
 					{
 						SIZE_T NumberOfBytesWritten = 0;
 						WriteProcessMemory(hProcess, (char*)pProgman_mem + image_size, lpThreadArgs, BUFFER_SIZE, &NumberOfBytesWritten);
-						HANDLE hTread = CreateRemoteThread(hProcess, NULL, 0, (LPTHREAD_START_ROUTINE)((char*)pProgman_mem + ((char*)callBack - (char*)hModule)),
+						HANDLE hThread = CreateRemoteThread(hProcess, NULL, 0, (LPTHREAD_START_ROUTINE)((char*)pProgman_mem + ((char*)callBack - (char*)hModule)),
 							(char*)pProgman_mem + image_size, 0, 0i64);
-						WaitForSingleObject(hTread, 15 * 1000);
-						TerminateThread(hTread, 0);
-						CloseHandle(hTread);
+						WaitForSingleObject(hThread, 15 * 1000);
+						TerminateThread(hThread, 0);
+						CloseHandle(hThread);
 					}
 					VirtualFree(pLocalMem, 0i64, MEM_RELEASE);
 				}
@@ -295,10 +295,11 @@ int main()
 	GetWindowThreadProcessId(hProgman, &dwProcessId);
 	if (dwProcessId)
 	{
-		HANDLE hExplorer = OpenProcess(PROCESS_CREATE_THREAD | PROCESS_VM_OPERATION | PROCESS_VM_WRITE, 0, dwProcessId);
+		HANDLE hExplorer = OpenProcess(PROCESS_CREATE_THREAD | PROCESS_QUERY_INFORMATION | PROCESS_VM_OPERATION
+			| PROCESS_VM_READ | PROCESS_VM_WRITE, FALSE, dwProcessId);
 		if (hExplorer != INVALID_HANDLE_VALUE)
 		{
-			InjectFun2Explorer(buffer, hExplorer, thread_func);
+			InjectIntoExplorer(buffer, hExplorer, thread_func);
 		}
 		else
 		{
